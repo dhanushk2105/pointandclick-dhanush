@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+websockets
+anthropic
+openai
+pydantic
+python-dotenv
+pytest
+httpx
