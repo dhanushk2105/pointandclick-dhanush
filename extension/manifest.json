@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Point & Click AI Browser Agent",
+  "version": "1.0.0",
+  "description": "An AI-powered browser extension that assists users by performing tasks based on their commands.",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "scripting",
+    "webNavigation",
+    "downloads"
+  ],
+  "host_permissions": [""],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [""],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Point & Click AI Browser Agent"
+  }
+}
