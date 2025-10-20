@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 450px;
+            min-height: 600px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+        }
+        
+        .container {
+            background: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .status.connected {
+            background: rgba(76, 175, 80, 0.9);
+        }
+        
+        .status.disconnected {
+            background: rgba(244, 67, 54, 0.9);
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e4e8;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 70px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Live Activity Log */
+        .activity-log {
+            margin-top: 20px;
+            flex: 1;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .activity-log.show {
+            display: flex;
+        }
+        
+        .activity-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .activity-header h3 {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .activity-status {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .activity-status.planning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .activity-status.processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .activity-status.verifying {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .activity-status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .activity-status.failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .log-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 250px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 11px;
+        }
+        
+        .log-entry {
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .log-entry .icon {
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+        
+        .log-entry .text {
+            flex: 1;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .log-entry.info {
+            background: #e7f3ff;
+        }
+        
+        .log-entry.success {
+            background: #d4edda;
+        }
+        
+        .log-entry.warning {
+            background: #fff3cd;
+        }
+        
+        .log-entry.error {
+            background: #f8d7da;
+        }
+        
+        .log-entry.step {
+            background: white;
+            border-left: 3px solid #667eea;
+        }
+        
+        .progress-bar {
+            margin-top: 10px;
+            height: 4px;
+            background: #e1e4e8;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .examples {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e1e4e8;
+        }
+        
+        .examples h4 {
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .example-btn {
+            display: block;
+            width: 100%;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: #f6f8fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 12px;
+            color: #0366d6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .example-btn:hover {
+            background: #e1e4e8;
+            transform: translateX(2px);
+        }
+        
+        .final-result {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .final-result.show {
+            display: block;
+        }
+        
+        .final-result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .final-result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .retry-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-left: 6px;
+            font-weight: 600;
+        }
+        
+        /* Scrollbar styling */
+        .log-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .log-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .log-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        .log-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Computer Use Agent</h1>
+            <div id="status" class="status disconnected">
+                Connecting...
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="input-group">
+                <label for="task">What should I do?</label>
+                <textarea id="task" placeholder="e.g., Go to Google and search for cats"></textarea>
+            </div>
+            
+            <button id="executeBtn" disabled>Execute Task</button>
+            
+            <div class="activity-log" id="activityLog">
+                <div class="activity-header">
+                    <h3>Activity Log</h3>
+                    <span class="activity-status" id="activityStatus">idle</span>
+                </div>
+                
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry info">
+                        <span class="icon">ℹ️</span>
+                        <span class="text">Ready to execute task</span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <div class="final-result" id="finalResult"></div>
+            </div>
+            
+            <div class="examples" id="examples">
+                <h4>Example Tasks:</h4>
+                <button class="example-btn" data-task="Go to Google and search for artificial intelligence">
+                    🔍 Google: Search for AI
+                </button>
+                <button class="example-btn" data-task="Navigate to GitHub and search for browser automation">
+                    💻 GitHub: Search repositories
+                </button>
+                <button class="example-btn" data-task="Go to HuggingFace papers and search for UI Agents">
+                    📄 HuggingFace: Find papers
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

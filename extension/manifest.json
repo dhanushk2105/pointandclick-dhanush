@@ -1,29 +1,66 @@
 {
   "manifest_version": 3,
-  "name": "Point & Click AI Browser Agent",
-  "version": "1.0.0",
-  "description": "An AI-powered browser extension that assists users by performing tasks based on their commands.",
+  "name": "Computer Use Agent - AI Browser Automation",
+  "version": "4.0.0",
+  "description": "AI-powered browser automation using OpenAI GPT-4. Control your browser with natural language.",
+  
   "permissions": [
     "tabs",
     "activeTab",
     "scripting",
     "webNavigation",
-    "downloads"
+    "downloads",
+    "storage",
+    "notifications"
   ],
+  
   "host_permissions": [
     "<all_urls>"
   ],
+  
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
+  
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
+  
   "action": {
-    "default_title": "Point & Click AI Browser Agent"
+    "default_popup": "popup.html",
+    "default_title": "Computer Use Agent"
+  },
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  
+  "minimum_chrome_version": "88",
+  
+  "homepage_url": "https://github.com/yourusername/computer-use-agent",
+  
+  "author": "Your Name",
+  
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A"
+      },
+      "description": "Open Computer Use Agent"
+    }
   }
 }
