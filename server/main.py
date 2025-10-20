@@ -105,7 +105,7 @@ manager = ConnectionManager()
 async def root():
     return {
         "name": "Computer Use Agent API",
-        "version": "4.0.0 - Production Ready",
+        "version": "4.0.0",
         "status": "running",
         "active_tasks": len(tasks),
         "architecture": "observe-plan-act-verify loop with structured outputs"

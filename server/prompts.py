@@ -1,11 +1,4 @@
-# prompts.py
-# Human-like, edge-aware browser automation prompts
-# Usage:
-#   from prompts import render_next_action_prompt, render_action_verification_prompt, render_final_verification_prompt
-#   prompt = render_next_action_prompt(task="Find cat pics", page_state="...", history="...")
-
-from __future__ import annotations
-from typing import Any, Dict
+from typing import Any
 
 def _ensure_str(value: Any) -> str:
     """Coerce None/objects to readable strings to avoid 'None' or raw dict prints in prompts."""
