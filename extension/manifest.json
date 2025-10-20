@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Conception AI",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "The automation layer the web was missing",
   
   "permissions": [
@@ -48,7 +48,7 @@
     }
   ],
   
-  "minimum_chrome_version": "88",
+  "minimum_chrome_version": "91",
   
   "homepage_url": "https://github.com/dhanushk2105/pointandclick-dhanush",
   
