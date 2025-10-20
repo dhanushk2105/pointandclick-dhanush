@@ -1,9 +1,8 @@
-"""Main execution engine for task processing."""
+"""Main execution engine"""
 
 import asyncio
 import json
 import logging
-from typing import Dict
 
 from .config import (
     MAX_RETRIES,
@@ -39,11 +38,15 @@ async def execute_task_with_retry(task_id: str):
         task.retry_count = attempt
         
         if attempt > 0:
-            delay = RETRY_DELAY_SECONDS * (2 ** (attempt - 1))  # Exponential backoff
+            delay = RETRY_DELAY_SECONDS * (2 ** (attempt - 1))
             log_detail("🔄", f"RETRY ATTEMPT {attempt + 1}", f"Waiting {delay}s before retry...")
             task.add_log("warning", f"Retry {attempt + 1}/{MAX_RETRIES}", 
-                        f"Reason: {task.verification_result}")
+                        f"Previous attempt failed: {task.verification_result}")
             await asyncio.sleep(delay)
+            
+            # Clear plan for fresh retry (let planner try different approach)
+            log_detail("🧹", "Clearing failed plan for fresh retry")
+            task.plan = []  # IMPORTANT: Clear so planner can try different strategy
         
         try:
             success = await execute_reactive_loop(task_id)
@@ -66,7 +69,8 @@ async def execute_task_with_retry(task_id: str):
 
 
 async def execute_reactive_loop(task_id: str) -> bool:
-    """Core reactive loop: observe → plan → act → verify."""
+    """Core reactive loop: observe → plan → act → verify.
+    CRITICAL: No retry loops inside - only outer retry."""
     task = task_manager.get_task(task_id)
     if not task:
         return False
@@ -137,6 +141,7 @@ async def execute_reactive_loop(task_id: str) -> bool:
         
         if not success:
             log_detail("❌", "Action execution failed")
+            # IMPORTANT: Return False to trigger outer retry, don't loop here
             return False
         
         task.plan.append(action_step)
@@ -160,6 +165,7 @@ async def execute_reactive_loop(task_id: str) -> bool:
         if not verification["success"]:
             log_detail("⚠️", "Action verification FAILED", verification["message"])
             task.verification_result = f"Step {step_count} verification failed: {verification['message']}"
+            # IMPORTANT: Return False to trigger outer retry, DON'T continue loop
             return False
         
         log_detail("✅", f"Step {step_count} verified successfully")
@@ -226,9 +232,11 @@ async def execute_single_action(task_id: str, action_step: dict, step_num: int) 
         
         log_detail("✅", "Action executed successfully")
         
-        # Smart delays based on action type
+        # Smart delays based on action type - LONGER for typing to let page settle
         if action_step["action"] in ["navigate", "click", "smartClick"]:
             await asyncio.sleep(PAGE_SETTLE_DELAY)
+        elif action_step["action"] in ["smartType", "type"]:
+            await asyncio.sleep(PAGE_SETTLE_DELAY * 1.5)  # Extra time for typing to register
         else:
             await asyncio.sleep(0.5)
         

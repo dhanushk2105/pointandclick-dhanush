@@ -127,7 +127,7 @@ export class StateManager {
   }
 
   /**
-   * Add log entry
+   * Add log entry and persist
    */
   addLog(type, message, details = '') {
     const logs = [...this.state.logs];
