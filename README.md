@@ -377,4 +377,4 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Made with ❤️ for Point & Click** | [Watch Demo Video](link-to-loom)
+**Made with ❤️ for Point & Click** | [Watch Demo Video](https://www.loom.com/share/2dc1fa13be914d54ab18ab9aa146578a?sid=8e681631-2d5d-4759-b2b7-5d5a1a1ac2d4)
